@@ -1,0 +1,8 @@
+{
+  "name": "odds-auto",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scrape": "node scraper/index.mjs"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:betlabel.com)",
+      "WebFetch(domain:polymarket.com)",
+      "WebFetch(domain:www.oddschecker.com)",
+      "WebFetch(domain:www.betfair.com)",
+      "WebFetch(domain:kalshi.com)",
+      "WebFetch(domain:betlbl.com)",
+      "WebFetch(domain:docs.polymarket.com)",
+      "WebFetch(domain:gamma-api.polymarket.com)",
+      "WebFetch(domain:manifold.markets)",
+      "WebFetch(domain:label.bet)",
+      "WebFetch(domain:agentbets.ai)",
+      "WebFetch(domain:developer.betfair.com)",
+      "WebFetch(domain:docs.manifold.markets)",
+      "WebFetch(domain:api.manifold.markets)",
+      "WebFetch(domain:v3.traincdn.com)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://line10.betlbl.com/line/desktop/topEvents?sport=314&lang=en&tf=3000000&country=hu\")",
+      "Bash(curl -s \"https://v3.traincdn.com/sportsbook/events?sport=314&champ=2932880&lang=en\")",
+      "Bash(curl -s -L https://betlbl.com/en/line/polybet/2932880-politics-hungary/312423938-next-prime-minister-of-hungary)",
+      "Bash(python3 -c \":*)",
+      "Bash(curl -s https://v3.traincdn.com/sys-static/sys-v3-host-app-static/Desktop/Other/entry-3d5f24e221.js)",
+      "Bash(python3:*)",
+      "Bash(node scraper/index.mjs)",
+      "Bash(node debug.mjs)",
+      "Bash(node -e \":*)",
+      "Bash(node --check /tmp/betlabel_iife.js)",
+      "Bash(node /tmp/betlabel_iife.js)",
+      "Bash(node /tmp/betlabel_test.cjs)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"Initial commit: odds auto-update system:*)",
+      "Bash(git config:*)",
+      "Bash(git branch:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
