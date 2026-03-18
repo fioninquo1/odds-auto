@@ -18,6 +18,16 @@ export async function fetchOdds() {
     const page = await context.newPage();
     await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
+    // Debug: log what the page looks like
+    const debugInfo = await page.evaluate(() => ({
+      title: document.title,
+      hasV3: !!window.__V3_HOST_APP__,
+      hasBetting: !!window.__BETTING_APP__,
+      url: window.location.href,
+      bodyLength: document.body.innerHTML.length,
+    }));
+    console.log('Page debug:', JSON.stringify(debugInfo));
+
     // Wait for the SPA to populate the game state
     await page.waitForFunction(
       () => {
