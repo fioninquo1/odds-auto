@@ -34,7 +34,16 @@
       "Bash(git commit -m \"Initial commit: odds auto-update system:*)",
       "Bash(git config:*)",
       "Bash(git branch:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(gh repo:*)",
+      "Bash(git rm:*)",
+      "Bash(gh run:*)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(git pull:*)",
+      "Bash(gh api:*)",
+      "Bash(npm install:*)",
+      "Bash(npx playwright:*)"
     ]
   }
 }

@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "scrape": "node scraper/index.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2"
   }
 }
