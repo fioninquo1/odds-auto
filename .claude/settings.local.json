@@ -44,7 +44,12 @@
       "Bash(gh api:*)",
       "Bash(npm install:*)",
       "Bash(npx playwright:*)",
-      "Bash(gh workflow:*)"
+      "Bash(gh workflow:*)",
+      "Bash(npx wrangler:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(systemctl --user daemon-reload)",
+      "Bash(systemctl --user enable --now odds-scraper.timer)",
+      "Bash(systemctl --user status odds-scraper.timer)"
     ]
   }
 }
