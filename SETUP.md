@@ -2,7 +2,7 @@
 
 ## Hogyan működik most
 
-1. **Systemd timer** óránként futtatja a scrapert a lokális gépen (`akos-cachy`)
+1. **Raspberry Pi** (`admin@raspi-nas`) óránként futtatja a scrapert systemd timer-rel
 2. A scraper lekéri a BetLabel oldalt, kiolvassa az SSR adatból az oddsokat
 3. Ha változtak, commitol és pushol a GitHub repóba (`fioninquo1/odds-auto`)
 4. **GitHub Pages** automatikusan kiszolgálja az `odds.json`-t: `https://fioninquo1.github.io/odds-auto/odds.json`
@@ -17,7 +17,17 @@
 - `landing.html` — a landing page a `<script>` snippet-tel (gitignore-ban van, Mautic-ba kell másolni)
 - `odds.json` — a scraper outputja, ez az "API"
 
-## Hasznos parancsok
+## Raspi elérés
+
+```bash
+ssh admin@raspi-nas
+```
+
+A repo a Raspi-n: `/opt/odds-auto`
+
+Systemd fájlok: `~/.config/systemd/user/odds-scraper.{service,timer}`
+
+## Hasznos parancsok (Raspi-n futtatva)
 
 ```bash
 # Timer állapot
@@ -27,32 +37,30 @@ systemctl --user status odds-scraper.timer
 systemctl --user start odds-scraper.service
 
 # Logok
-journalctl --user -u odds-scraper.service
+systemctl --user status odds-scraper.service
 
-# Timer leállítás
-systemctl --user stop odds-scraper.timer
+# Timer leállítás (pl. ha online szolgáltatásra váltasz)
+systemctl --user disable --now odds-scraper.timer
 
 # Timer újraindítás
-systemctl --user restart odds-scraper.timer
+systemctl --user enable --now odds-scraper.timer
 ```
 
 ## Ismert limitáció
 
-A BetLabel blokkolja a datacenter IP-ket (GitHub Actions, Cloudflare Workers stb.), ezért a scraper csak "normál" IP-ről fut — jelenleg a lokális gépről. Ha a gép ki van kapcsolva, nem frissül az odds.json, de a landing page ilyenkor is a legutóbbi adatot mutatja.
+A BetLabel blokkolja a datacenter IP-ket (GitHub Actions, Cloudflare Workers stb.), ezért a scraper csak "normál" IP-ről fut — jelenleg a Raspi-ról. Ha a Raspi nem elérhető, nem frissül az odds.json, de a landing page ilyenkor is a legutóbbi adatot mutatja.
 
 ---
 
-## Későbbi fejlesztés: proxy megoldás (szerverre költöztetés)
+## Későbbi fejlesztés: online szolgáltatásra váltás
 
-Ha a scraper-t szerverre (pl. Raspi, VPS) akarod költöztetni, két útvonal van:
+Ha a Raspi-t ki akarod váltani, két útvonal van:
 
-### A) Cloudflare Worker proxy
+### A) Cloudflare Worker proxy + GitHub Actions
 
-1. Cloudflare Worker-t deployolsz, ami proxy-ként lekéri a BetLabel HTML-t
-2. A scraper a Worker URL-t hívja a BetLabel közvetlen URL helyett
-3. Így a scraper futhat GitHub Actions-ből is (a Worker edge IP-ről fetchel, amit nem blokkol a BetLabel)
+A Worker proxy-ként lekéri a BetLabel HTML-t edge IP-ről (amit nem blokkol a BetLabel), a GitHub Actions scraper pedig a Worker URL-t hívja.
 
-**worker/index.js:**
+**1. Worker létrehozás (`worker/index.js`):**
 ```js
 const TARGET_URL = 'https://betlbl.com/hu/line/polybet/2932880-politics-hungary/312423938-next-prime-minister-of-hungary';
 
@@ -77,21 +85,60 @@ export default {
 };
 ```
 
-**Deploy:** `npx wrangler deploy` (Cloudflare email verifikáció kell hozzá)
+**2. Worker deploy:**
+```bash
+# worker/wrangler.toml kell hozzá (name = "betlabel-proxy")
+npx wrangler deploy
+```
+Követelmény: Cloudflare account verified email-lel.
 
-Utána a `betlabel.mjs`-ben a `PAGE_URL`-t cseréld a Worker URL-re:
+**3. Scraper átállítás:**
+A `betlabel.mjs`-ben a `PAGE_URL`-t cseréld:
 ```js
 const PAGE_URL = 'https://betlabel-proxy.ACCOUNTNEV.workers.dev/?key=TITKOS_KULCS';
 ```
 
-Visszarakod a `update-odds.yml` GitHub Actions workflow-t, és kész — teljesen automatikus, szerver nélkül.
+**4. GitHub Actions workflow visszarakása:**
+Hozz létre `.github/workflows/update-odds.yml`-t:
+```yaml
+name: Update Odds
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm run scrape
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet odds.json 2>/dev/null && exit 0
+          git add odds.json
+          git commit -m "Update odds $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push
+```
 
-### B) Raspi / VPS
+**5. Raspi timer kikapcsolása:**
+```bash
+ssh admin@raspi-nas
+systemctl --user disable --now odds-scraper.timer
+```
+
+### B) Másik VPS
 
 1. Klónold a repót a szerverre
-2. Állítsd be a git auth-ot (`gh auth login` vagy SSH key)
-3. Másold a systemd fájlokat:
+2. Állítsd be a git auth-ot (`gh auth login` vagy `git config credential.helper store` + PAT token)
+3. Másold a systemd fájlokat a Raspi-ról:
    - `~/.config/systemd/user/odds-scraper.service`
    - `~/.config/systemd/user/odds-scraper.timer`
 4. `systemctl --user enable --now odds-scraper.timer`
-5. Lokális gépről a timer-t kikapcsolod: `systemctl --user disable --now odds-scraper.timer`
+5. Raspi timer kikapcsolása: `systemctl --user disable --now odds-scraper.timer`
