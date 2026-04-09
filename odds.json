@@ -1,18 +1,18 @@
 {
-  "updatedAt": "2026-04-09T17:00:21.706Z",
+  "updatedAt": "2026-04-09T18:00:21.694Z",
   "source": "betlabel",
   "candidates": [
     {
       "id": "magyar",
       "name": "Magyar Péter",
       "party": "Tisza Párt",
-      "odds": 1.39
+      "odds": 1.37
     },
     {
       "id": "orban",
       "name": "Orbán Viktor",
       "party": "Fidesz–KDNP",
-      "odds": 3.02
+      "odds": 3.12
     },
     {
       "id": "dobrev",
