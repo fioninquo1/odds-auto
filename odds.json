@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-10T17:00:21.589Z",
+  "updatedAt": "2026-04-10T18:00:21.572Z",
   "source": "betlabel",
   "candidates": [
     {
@@ -12,7 +12,7 @@
       "id": "orban",
       "name": "Orbán Viktor",
       "party": "Fidesz–KDNP",
-      "odds": 3.34
+      "odds": 3.225
     },
     {
       "id": "dobrev",
